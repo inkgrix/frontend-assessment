@@ -1,11 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ListUsers } from "@/services/api";
+import { User, UserListResponse } from "@/types/users";
+import { TableForm } from "@/components/table-form";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function UserList() {
   const router = useRouter();
   const [isAuth, setIsAuth] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [listResponse, setListResponse] = useState<UserListResponse | null>(
+    null,
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      const res = await ListUsers(page);
+      setUsers(res.data);
+      setListResponse(res);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -22,14 +48,85 @@ export default function UserList() {
       localStorage.removeItem("loginTimestamp");
       router.push("/signin");
       return;
-    } else {
-      setIsAuth(true);
     }
-  }, [router]);
+
+    if (token && loginTimeStamp && now - parseInt(loginTimeStamp) <= EXP_TIME) {
+      if (!isAuth) setIsAuth(true);
+      fetchData();
+    }
+  }, [router, fetchData, isAuth]);
 
   if (!isAuth) {
     return null;
   }
 
-  return <div>Hi</div>;
+  return (
+    <div className="min-h-screen bg-[#0a0c10] text-white p-4 md:p-10">
+      <div className="max-w-4xl mx-auto w-full">
+        <div className="p-5">
+          <h1 className="text-2xl font-bold mb-5">List Users</h1>
+          <div className="space-y-2">
+            <div className="rounded-md border bg-card shadow-sm relative">
+              <div className="relative w-full overflow-auto">
+                <table className="w-full caption-bottom text-sm min-h-20">
+                  <thead className="bg-muted/50">
+                    <tr className="border-b transition-colors hover:bg-muted/50">
+                      <th className="h-11 px-4 text-left align-middle font-medium text-muted-foreground">
+                        Name
+                      </th>
+                      <th className="h-11 px-4 text-left align-middle font-medium text-muted-foreground">
+                        Email
+                      </th>
+                      <th className="h-11 px-4 text-left align-middle font-medium text-muted-foreground"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="[&_tr:last-child]:border-0">
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={3} className="p-4">
+                          <div className="flex w-full flex-col gap-4">
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      <TableForm users={users} />
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <hr />
+              <div className="flex items-center px-3 py-2 z-1 relative">
+                <Button
+                  onClick={() => setPage((prev) => prev - 1)}
+                  className="h-8 w-8 border bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                  size={"icon"}
+                  disabled={listResponse?.page === 1 || isLoading}
+                >
+                  <ChevronLeft className="text-foreground" />
+                </Button>
+                <div className="flex flex-1 items-center justify-center text-subtitle">
+                  Page {listResponse?.page} of {listResponse?.total_pages}
+                </div>
+                <Button
+                  onClick={() => setPage((prev) => prev + 1)}
+                  className="h-8 w-8 border bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                  size={"icon"}
+                  disabled={
+                    listResponse?.page === listResponse?.total_pages ||
+                    isLoading
+                  }
+                >
+                  <ChevronRight className="text-foreground" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
