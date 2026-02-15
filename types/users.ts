@@ -13,3 +13,19 @@ export interface UserListResponse {
   total_pages: number;
   data: User[];
 }
+
+export interface EditUserModalProps {
+  userId: number | null;
+  initialName: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: (data: { name: string; job: string }) => void;
+}
+
+export interface DeleteUserProps {
+  userId: number | null;
+  userName: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: (id: number) => void;
+}

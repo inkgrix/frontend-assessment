@@ -8,6 +8,8 @@ import { TableForm } from "@/components/table-form";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DialogEditUser } from "@/components/edit-user-form";
+import { AlertDialogDelete } from "@/components/delete-user-form";
 
 export default function UserList() {
   const router = useRouter();
@@ -18,6 +20,12 @@ export default function UserList() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedUserName, setSelectedUserName] = useState("");
+  const [editName, setEditName] = useState(""); 
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -56,10 +64,34 @@ export default function UserList() {
     }
   }, [router, fetchData, isAuth]);
 
+  const handleEditClick = (id: number, name: string) => {
+    setSelectedUserId(id);
+    setEditName(name);
+    setIsEditOpen(true);
+  };
+
+  const handleUpdateSuccess = (updatedUser: { name: string; job: string }) => {
+    const updatedList = users.map((user) =>
+      user.id === selectedUserId
+        ? { ...user, first_name: updatedUser.name, last_name: "" }
+        : user,
+    );
+    setUsers(updatedList);
+  };
+
+  const handleDeleteClick = (id: number, name: string) => {
+    setSelectedDeleteId(id);
+    setSelectedUserName(name);
+    setIsDeleteOpen(true);
+  };
+
+  const handleDeleteSuccess = (id: number) => {
+    setUsers(users.filter((u) => u.id !== id));
+  };
+
   if (!isAuth) {
     return null;
   }
-
   return (
     <div className="min-h-screen bg-[#0a0c10] text-white p-4 md:p-10">
       <div className="max-w-4xl mx-auto w-full">
@@ -93,7 +125,11 @@ export default function UserList() {
                         </td>
                       </tr>
                     ) : (
-                      <TableForm users={users} />
+                      <TableForm
+                        users={users}
+                        onEdit={handleEditClick}
+                        onDelete={handleDeleteClick}
+                      />
                     )}
                   </tbody>
                 </table>
@@ -127,6 +163,20 @@ export default function UserList() {
           </div>
         </div>
       </div>
+      <DialogEditUser
+        userId={selectedUserId}
+        initialName={editName}
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onSuccess={handleUpdateSuccess}
+      />
+      <AlertDialogDelete
+        userId={selectedDeleteId}
+        userName={selectedUserName}
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onSuccess={handleDeleteSuccess}
+      />
     </div>
   );
 }

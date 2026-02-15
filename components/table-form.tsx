@@ -6,9 +6,11 @@ import { Trash2, UserPen } from "lucide-react";
 
 interface TableFormProps {
   users: User[];
+  onEdit: (id: number, name: string) => void;
+  onDelete: (id: number, name: string) => void;
 }
 
-export function TableForm({ users }: TableFormProps) {
+export function TableForm({ users, onEdit, onDelete }: TableFormProps) {
   return (
     <>
       {users.map((user) => {
@@ -38,10 +40,18 @@ export function TableForm({ users }: TableFormProps) {
             </td>
             <td className="px-3 py-2.5 md:px-4 md:py-2 align-middle [&:has([role=checkbox])]:pr-0">
               <div className="flex justify-end gap-2">
-                <Button className="h-8 w-8 border bg-background hover:bg-accent hover:text-accent-foreground transition-colors">
+                <Button
+                  onClick={() => onEdit(user.id, `${user.first_name} ${user.last_name}`)}
+                  className="h-8 w-8 border bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                >
                   <UserPen size={16} color="white" />
                 </Button>
-                <Button className="h-8 w-8 border bg-red-800 hover:bg-red-900 hover:text-accent-foreground transition-colors">
+                <Button
+                  onClick={() =>
+                    onDelete(user.id, `${user.first_name} ${user.last_name}`)
+                  }
+                  className="h-8 w-8 border bg-red-800 hover:bg-red-900 hover:text-accent-foreground transition-colors"
+                >
                   <Trash2 size={16} color="white" />
                 </Button>
               </div>
