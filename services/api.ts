@@ -1,9 +1,6 @@
 import { RegisterResponse, UserCredential } from "@/types/auth";
 
 const API_KEY = process.env.NEXT_PUBLIC_X_API_KEY;
-if (!API_KEY) {
-  console.warn("Missing API_KEY");
-}
 
 export const loginUser = async (
   credential: UserCredential,
