@@ -47,7 +47,9 @@ export function AlertDialogDelete({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Are you absolutely sure to delete **{userName}**?
+            <p>
+              Are you absolutely sure to delete <span className="font-bold text-white mx-1">{userName.trim()}</span>?
+            </p>
           </AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete your
