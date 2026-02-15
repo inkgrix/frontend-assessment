@@ -14,6 +14,7 @@ import { useState } from "react";
 import { registerUser } from "@/services/api";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
+import { toast } from "sonner";
 
 export function RegisterForm({
   className,
@@ -39,16 +40,26 @@ export function RegisterForm({
         password: password,
       });
 
-      if (res && res.token) {
+      if (res && (res.token || res.id)) {
+        toast.success("Register Success!");
+
         setTimeout(() => {
           router.push("/signin");
         }, 1000);
       } else {
-        console.log('Register Failed');
-        setIsLoading(false);
+        toast.error("Registration failed", {
+          description: "Please try again later.",
+        });
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Error", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error("Register Failed", {
+        description:
+          errorMessage || "Something went wrong during registration.",
+      });
+    } finally {
       setIsLoading(false);
     }
   };

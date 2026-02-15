@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { loginUser } from "@/services/api";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
+import { toast } from "sonner";
 
 export function LoginForm({
   className,
@@ -38,16 +39,25 @@ export function LoginForm({
         localStorage.setItem("token", res.token);
         localStorage.setItem("loginTimestamp", now.toString());
 
+        toast.success("Login Success", {
+          description: "Redirecting to dashboard...",
+        });
+
         setTimeout(() => {
           router.push("/users");
         }, 1000);
       } else {
-        console.error("Invalid Token");
-        setIsLoading(false);
+        throw new Error("Invalid Token received from server");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      throw err;
+      const errorMessage =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error("Login Failed", {
+        description: errorMessage || "Please check your email and password",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -63,9 +73,7 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">
-            Login to your account
-          </CardTitle>
+          <CardTitle className="text-center">Login to your account</CardTitle>
           {/* <CardDescription>
             Enter your email below to login to your account
           </CardDescription> */}

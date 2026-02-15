@@ -13,6 +13,7 @@ import {
 import { DeleteUserById } from "@/services/api";
 import { DeleteUserProps } from "@/types/users";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function AlertDialogDelete({
   userId,
@@ -29,10 +30,13 @@ export function AlertDialogDelete({
     setIsDeleting(true);
     try {
       await DeleteUserById(userId);
+
+      toast.success("Delete Success");
       onSuccess(userId);
       onClose();
     } catch (err) {
       console.error("Delete failed", err);
+      toast.error("Delete failed");
     } finally {
       setIsDeleting(false);
     }

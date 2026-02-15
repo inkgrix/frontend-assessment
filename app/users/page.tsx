@@ -104,7 +104,12 @@ export default function UserList() {
         <div className="p-5">
           <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-800">
             <h1 className="text-2xl font-bold">List Users</h1>
-            <Button onClick={handleLogout} className="cursor-pointer bg-red-800 hover:bg-red-900 text-white">Logout</Button>
+            <Button
+              onClick={handleLogout}
+              className="cursor-pointer bg-red-800 hover:bg-red-900 text-white"
+            >
+              Logout
+            </Button>
           </div>
           <div className="space-y-2">
             <div className="rounded-md border bg-card shadow-sm relative">

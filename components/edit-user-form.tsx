@@ -15,6 +15,7 @@ import { GetUserById, UpdateUser } from "@/services/api";
 import { EditUserModalProps } from "@/types/users";
 import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
+import { toast } from "sonner";
 
 export function DialogEditUser({
   userId,
@@ -55,10 +56,13 @@ export function DialogEditUser({
     setIsSubmitting(true);
     try {
       await UpdateUser(userId, { name, job });
+
+      toast.success("Update Success");
       onSuccess({ name, job });
       onClose();
     } catch (err) {
       console.error(err);
+      toast.error("Update failed");
     } finally {
       setIsSubmitting(false);
     }
